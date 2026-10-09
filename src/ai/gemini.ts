@@ -181,6 +181,7 @@ export async function generateStructured<T>(options: GenerateOptions): Promise<G
 /**
  * Dynamically queries Google Generative Language API for all active models
  * enabled on the operator's specific API key that support generateContent.
+ * Enforces an 8-second timeout to prevent UI freezes on stalled sockets.
  */
 export async function listAvailableModels(
   apiKey: string,
@@ -188,11 +189,30 @@ export async function listAvailableModels(
 ): Promise<GeminiModelInfo[]> {
   if (!apiKey) throw new GeminiError('No Gemini API key provided.');
 
-  const response = await fetch(API_ROOT, {
-    method: 'GET',
-    headers: { 'x-goog-api-key': apiKey },
-    signal,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    controller.abort(new Error('Connection to Google AI Studio timed out after 8s. Check your network.'));
+  }, 8000);
+
+  if (signal) {
+    signal.addEventListener('abort', () => controller.abort(signal.reason), { once: true });
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(API_ROOT, {
+      method: 'GET',
+      headers: { 'x-goog-api-key': apiKey },
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (controller.signal.aborted && !signal?.aborted) {
+      throw new GeminiError('Connection to Google AI Studio timed out after 8s. Check your network.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '');
@@ -224,7 +244,24 @@ export async function listAvailableModels(
       inputTokenLimit: m.inputTokenLimit,
       outputTokenLimit: m.outputTokenLimit,
       supportedGenerationMethods: m.supportedGenerationMethods ?? [],
-    }));
+    }))
+    .sort((a, b) => {
+      // Prioritize fast Gemini Flash models, then Gemini Pro, then other models
+      const score = (id: string) => {
+        const lower = id.toLowerCase();
+        if (lower.includes('gemini-2.5-flash')) return 100;
+        if (lower.includes('gemini-2.0-flash')) return 95;
+        if (lower.includes('gemini-1.5-flash')) return 90;
+        if (lower.includes('gemini') && lower.includes('flash')) return 85;
+        if (lower.includes('gemini-2.5-pro')) return 80;
+        if (lower.includes('gemini-2.0-pro')) return 75;
+        if (lower.includes('gemini-1.5-pro')) return 70;
+        if (lower.includes('gemini')) return 60;
+        if (lower.includes('flash')) return 50;
+        return 10;
+      };
+      return score(b.id) - score(a.id);
+    });
 }
 
 export interface VerifyKeyResult {
@@ -237,9 +274,9 @@ export interface VerifyKeyResult {
  * Comprehensive credential and model discovery check. Queries the live models endpoint
  * rather than hardcoding a fragile model string that Google may rename or deprecate.
  */
-export async function verifyKey(apiKey: string): Promise<VerifyKeyResult> {
+export async function verifyKey(apiKey: string, signal?: AbortSignal): Promise<VerifyKeyResult> {
   try {
-    const models = await listAvailableModels(apiKey);
+    const models = await listAvailableModels(apiKey, signal);
     return { valid: true, models };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

@@ -38,8 +38,25 @@ interface PlainRecord {
 
 type VaultRecord = EncryptedRecord | PlainRecord;
 
+const SESSION_UNLOCKED_KEY = 'saqa.sessionUnlockedKey';
+
 /** Held in service-worker memory only; cleared when the worker is torn down. */
 let unlockedKey: string | null = null;
+
+async function setSessionKey(key: string | null): Promise<void> {
+  unlockedKey = key;
+  if (typeof chrome !== 'undefined' && chrome.storage?.session) {
+    try {
+      if (key) {
+        await chrome.storage.session.set({ [SESSION_UNLOCKED_KEY]: key });
+      } else {
+        await chrome.storage.session.remove(SESSION_UNLOCKED_KEY);
+      }
+    } catch {
+      // In-memory fallback if storage.session is unavailable
+    }
+  }
+}
 
 function toBase64(buffer: ArrayBuffer): string {
   return btoa(String.fromCharCode(...new Uint8Array(buffer)));
@@ -92,13 +109,13 @@ export async function storeKey(
       iterations: PBKDF2_ITERATIONS,
     };
     await chrome.storage.local.set({ [KEY_RECORD]: record });
-    unlockedKey = apiKey;
+    await setSessionKey(apiKey);
     return 'passphrase';
   }
 
   const record: PlainRecord = { mode: 'plain', value: apiKey };
   await chrome.storage.local.set({ [KEY_RECORD]: record });
-  unlockedKey = apiKey;
+  await setSessionKey(apiKey);
   return 'plain';
 }
 
@@ -113,7 +130,7 @@ export async function unlock(passphrase: string): Promise<void> {
   const record = stored[KEY_RECORD] as VaultRecord | undefined;
   if (!record) throw new Error('No API key stored.');
   if (record.mode === 'plain') {
-    unlockedKey = record.value;
+    await setSessionKey(record.value);
     return;
   }
 
@@ -124,7 +141,8 @@ export async function unlock(passphrase: string): Promise<void> {
       key,
       fromBase64(record.ciphertext),
     );
-    unlockedKey = new TextDecoder().decode(plaintext);
+    const decoded = new TextDecoder().decode(plaintext);
+    await setSessionKey(decoded);
   } catch {
     // AES-GCM authentication failure is the only realistic cause here.
     throw new Error('Incorrect passphrase.');
@@ -134,6 +152,17 @@ export async function unlock(passphrase: string): Promise<void> {
 /** Returns the key if available, else null. Callers surface the unlock prompt. */
 export async function getKey(): Promise<string | null> {
   if (unlockedKey) return unlockedKey;
+  if (typeof chrome !== 'undefined' && chrome.storage?.session) {
+    try {
+      const session = await chrome.storage.session.get(SESSION_UNLOCKED_KEY);
+      if (session[SESSION_UNLOCKED_KEY]) {
+        unlockedKey = session[SESSION_UNLOCKED_KEY] as string;
+        return unlockedKey;
+      }
+    } catch {
+      // Ignore
+    }
+  }
   const stored = await chrome.storage.local.get(KEY_RECORD);
   const record = stored[KEY_RECORD] as VaultRecord | undefined;
   if (record?.mode === 'plain') {
@@ -144,14 +173,15 @@ export async function getKey(): Promise<string | null> {
 }
 
 export function lock(): void {
-  unlockedKey = null;
+  void setSessionKey(null);
 }
 
 export async function clearKey(): Promise<void> {
-  unlockedKey = null;
+  await setSessionKey(null);
   await chrome.storage.local.remove(KEY_RECORD);
 }
 
 export function isUnlocked(): boolean {
   return unlockedKey !== null;
 }
+

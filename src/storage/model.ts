@@ -19,16 +19,39 @@ export const PREFERRED_MODELS_ORDER = [
 export function pickBestDefaultModel(models: GeminiModelInfo[]): string {
   if (!models || models.length === 0) return DEFAULT_MODEL;
 
+  // 1. Exact match against preferred models
   for (const preferred of PREFERRED_MODELS_ORDER) {
     const match = models.find((m) => m.id.toLowerCase() === preferred.toLowerCase());
     if (match) return match.id;
   }
 
-  // Fallback to any model containing "flash"
+  // 2. Partial match against preferred models (e.g. versioned suffixes like -001, -preview)
+  for (const preferred of PREFERRED_MODELS_ORDER) {
+    const match = models.find((m) => m.id.toLowerCase().includes(preferred.toLowerCase()));
+    if (match) return match.id;
+  }
+
+  // 3. Any Gemini model containing "flash"
+  const anyGeminiFlash = models.find(
+    (m) => m.id.toLowerCase().includes('gemini') && m.id.toLowerCase().includes('flash'),
+  );
+  if (anyGeminiFlash) return anyGeminiFlash.id;
+
+  // 4. Any Gemini model containing "pro"
+  const anyGeminiPro = models.find(
+    (m) => m.id.toLowerCase().includes('gemini') && m.id.toLowerCase().includes('pro'),
+  );
+  if (anyGeminiPro) return anyGeminiPro.id;
+
+  // 5. Any Gemini model at all
+  const anyGemini = models.find((m) => m.id.toLowerCase().includes('gemini'));
+  if (anyGemini) return anyGemini.id;
+
+  // 6. Fallback to any model containing "flash"
   const anyFlash = models.find((m) => m.id.toLowerCase().includes('flash'));
   if (anyFlash) return anyFlash.id;
 
-  // Final fallback to the first available generative model
+  // 7. Final fallback to first model or DEFAULT_MODEL
   return models[0]?.id ?? DEFAULT_MODEL;
 }
 

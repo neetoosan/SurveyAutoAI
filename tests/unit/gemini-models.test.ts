@@ -62,6 +62,25 @@ describe('Gemini Model Discovery & Selection', () => {
       expect(pickBestDefaultModel(mockModels)).toBe('gemini-2.0-flash');
     });
 
+    it('prioritizes Gemini Flash models over Gemma or third-party models', () => {
+      const mockModels: GeminiModelInfo[] = [
+        {
+          id: 'gemma-4-26b-a4b-it',
+          name: 'models/gemma-4-26b-a4b-it',
+          displayName: 'Gemma 4 26B A4B IT',
+          supportedGenerationMethods: ['generateContent'],
+        },
+        {
+          id: 'gemini-2.0-flash-001',
+          name: 'models/gemini-2.0-flash-001',
+          displayName: 'Gemini 2.0 Flash',
+          supportedGenerationMethods: ['generateContent'],
+        },
+      ];
+
+      expect(pickBestDefaultModel(mockModels)).toBe('gemini-2.0-flash-001');
+    });
+
     it('falls back to any model containing "flash" if priority list misses', () => {
       const mockModels: GeminiModelInfo[] = [
         {
@@ -162,6 +181,18 @@ describe('Gemini Model Discovery & Selection', () => {
       } as Response);
 
       const res = await verifyKey('bad-key');
+      expect(res.valid).toBe(false);
+      expect(res.models).toHaveLength(0);
+      expect(res.error).toBeDefined();
+    });
+
+    it('returns valid: false if connection times out or aborts', async () => {
+      global.fetch = vi.fn().mockImplementation(() => {
+        const err = new DOMException('The user aborted a request.', 'AbortError');
+        return Promise.reject(err);
+      });
+
+      const res = await verifyKey('timeout-key');
       expect(res.valid).toBe(false);
       expect(res.models).toHaveLength(0);
       expect(res.error).toBeDefined();

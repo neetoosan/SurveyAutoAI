@@ -206,8 +206,10 @@ function VaultCard() {
   const [mode, setMode] = useState<VaultMode | null>(null);
   const [apiKey, setApiKey] = useState('');
   const [passphrase, setPassphrase] = useState('');
-  const [usePassphrase, setUsePassphrase] = useState(true);
+  const [usePassphrase, setUsePassphrase] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   // Model selection state
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL);
@@ -285,42 +287,76 @@ function VaultCard() {
 
   async function verifyAndLoadKeyModels() {
     if (!apiKey.trim()) return setStatus('Enter an API key first.');
+    setIsVerifying(true);
     setStatus('Connecting to Google AI Studio & discovering models...');
-    const result = await verifyKey(apiKey.trim());
-    if (!result.valid) {
-      return setStatus(`Key verification failed: ${result.error || 'Invalid API key.'}`);
-    }
-    if (result.models.length > 0) {
-      setAvailableModels(result.models);
-      await saveCachedModels(result.models);
-      const best = pickBestDefaultModel(result.models);
-      setSelectedModel(best);
-      setCustomModelInput(best);
-      setStatus(`Key verified! Found ${result.models.length} active models. Recommended: ${best}`);
-    } else {
-      setStatus('Key valid, but Google returned 0 text generation models.');
+    try {
+      const result = await verifyKey(apiKey.trim());
+      if (!result.valid) {
+        setStatus(`Key verification failed: ${result.error || 'Invalid API key.'}`);
+        return;
+      }
+      if (result.models.length > 0) {
+        setAvailableModels(result.models);
+        await saveCachedModels(result.models);
+        const best = pickBestDefaultModel(result.models);
+        setSelectedModel(best);
+        setCustomModelInput(best);
+        setStatus(`Key verified! Found ${result.models.length} active models. Recommended: ${best}`);
+      } else {
+        setStatus('Key valid, but Google returned 0 text generation models.');
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setStatus(`Verification error: ${msg}`);
+    } finally {
+      setIsVerifying(false);
     }
   }
 
   async function save() {
     if (!apiKey.trim()) return setStatus('Enter a key first.');
-    setStatus('Verifying...');
-    const result = await verifyKey(apiKey.trim());
-    if (!result.valid) {
-      return setStatus(`Key rejected by Google Gemini API: ${result.error || 'Not saved.'}`);
-    }
+    setIsSaving(true);
+    setStatus('Saving...');
+    try {
+      let currentModels = availableModels;
+      // Only run network verification if models have not yet been discovered
+      if (currentModels.length === 0) {
+        setStatus('Verifying key with Google AI Studio...');
+        const result = await verifyKey(apiKey.trim());
+        if (!result.valid) {
+          setStatus(`Key rejected by Google Gemini API: ${result.error || 'Not saved.'}`);
+          return;
+        }
+        currentModels = result.models;
+        if (result.models.length > 0) {
+          setAvailableModels(result.models);
+          await saveCachedModels(result.models);
+        }
+      }
 
-    const chosenModel = isCustomModel ? normalizeModelId(customModelInput) : selectedModel;
-    await saveSelectedModel(chosenModel);
-    if (result.models.length > 0) {
-      await saveCachedModels(result.models);
-    }
+      setStatus('Saving key & model configuration...');
+      const chosenModel = isCustomModel ? normalizeModelId(customModelInput) : selectedModel;
+      await saveSelectedModel(chosenModel);
 
-    const saved = await storeKey(apiKey.trim(), usePassphrase ? { passphrase } : {});
-    setMode(saved);
-    setApiKey('');
-    setPassphrase('');
-    setStatus(`Saved in ${saved} mode. Active model: ${chosenModel}`);
+      if (usePassphrase && !passphrase.trim()) {
+        setStatus('Please enter a passphrase to encrypt your key, or uncheck passphrase encryption.');
+        return;
+      }
+
+      const saved = await storeKey(
+        apiKey.trim(),
+        usePassphrase && passphrase.trim() ? { passphrase: passphrase.trim() } : {},
+      );
+      setMode(saved);
+      setApiKey('');
+      setPassphrase('');
+      setStatus(`Saved in ${saved} mode. Active model: ${chosenModel}`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setStatus(`Error saving key: ${msg}`);
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   if (mode) {
@@ -508,13 +544,30 @@ function VaultCard() {
 
         <div className="flex gap-2 pt-1">
           {availableModels.length === 0 ? (
-            <Button variant="primary" onClick={verifyAndLoadKeyModels}>
-              Verify & Discover Models
+            <Button
+              variant="primary"
+              disabled={isVerifying || isSaving}
+              onClick={verifyAndLoadKeyModels}
+            >
+              {isVerifying ? 'Verifying...' : 'Verify & Discover Models'}
             </Button>
           ) : (
-            <Button variant="primary" onClick={save}>
-              Save Key & Model
-            </Button>
+            <>
+              <Button
+                variant="primary"
+                disabled={isSaving || isVerifying}
+                onClick={save}
+              >
+                {isSaving ? 'Saving...' : 'Save Key & Model'}
+              </Button>
+              <Button
+                variant="ghost"
+                disabled={isSaving || isVerifying}
+                onClick={verifyAndLoadKeyModels}
+              >
+                {isVerifying ? 'Checking...' : 'Re-check Models'}
+              </Button>
+            </>
           )}
         </div>
         {status && <p className="text-[11px] text-slate-400">{status}</p>}
