@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Qualtrics - Cloud Architecture Survey</title>
+  </head>
+  <body>
+    <div id="Header" class="Title">Cloud Architecture Research</div>
+
+    <div id="Questions">
+      <!-- Question 1: Single Choice (Radio) -->
+      <div class="QuestionOuter" id="QID1">
+        <div class="QuestionText">Primary Cloud Provider *</div>
+        <div class="ValidationError" style="display: none;">This question is required.</div>
+        <ul class="ChoiceStructure">
+          <li>
+            <label>
+              <input type="radio" name="QR~QID1" value="1" />
+              AWS
+            </label>
+          </li>
+          <li>
+            <label>
+              <input type="radio" name="QR~QID1" value="2" />
+              Google Cloud
+            </label>
+          </li>
+          <li>
+            <label>
+              <input type="radio" name="QR~QID1" value="3" />
+              Azure
+            </label>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Question 2: Matrix Table -->
+      <div class="QuestionOuter" id="QID2">
+        <div class="QuestionText">Rate Platform Dimensions</div>
+        <table class="Matrix">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col">Poor</th>
+              <th scope="col">Fair</th>
+              <th scope="col">Excellent</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row" class="ylabel">Performance</th>
+              <td><input type="radio" name="QR~QID2~1" value="1" /></td>
+              <td><input type="radio" name="QR~QID2~1" value="2" /></td>
+              <td><input type="radio" name="QR~QID2~1" value="3" /></td>
+            </tr>
+            <tr>
+              <th scope="row" class="ylabel">Reliability</th>
+              <td><input type="radio" name="QR~QID2~2" value="1" /></td>
+              <td><input type="radio" name="QR~QID2~2" value="2" /></td>
+              <td><input type="radio" name="QR~QID2~2" value="3" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Question 3: Slider / Range -->
+      <div class="QuestionOuter" id="QID3">
+        <div class="QuestionText">Net Promoter Score</div>
+        <div class="Slider">
+          <input type="range" class="horizontalbar ResultsInput" min="0" max="10" value="5" />
+        </div>
+      </div>
+
+      <!-- Question 4: Open Text -->
+      <div class="QuestionOuter" id="QID4">
+        <div class="QuestionText">Suggestions for Improvement</div>
+        <textarea class="InputText" rows="4"></textarea>
+      </div>
+    </div>
+
+    <!-- Navigation Controls -->
+    <input type="button" id="NextButton" value="Next" />
+    <input type="button" id="SubmitButton" value="Submit" style="display: none;" />
+  </body>
+</html>

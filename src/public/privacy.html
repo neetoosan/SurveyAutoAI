@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy - SurveyAutoAI QA Harness</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: #020617;
+        color: #e2e8f0;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+      }
+      header {
+        border-bottom: 1px solid #1e293b;
+        padding-bottom: 24px;
+        margin-bottom: 32px;
+      }
+      .badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: rgba(14, 165, 233, 0.15);
+        color: #38bdf8;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        margin-bottom: 12px;
+        border: 1px solid rgba(14, 165, 233, 0.3);
+      }
+      h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #f8fafc;
+        margin: 0 0 8px;
+      }
+      .updated {
+        font-size: 13px;
+        color: #64748b;
+      }
+      h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #38bdf8;
+        margin-top: 32px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid #1e293b;
+        padding-bottom: 6px;
+      }
+      p, li {
+        font-size: 14px;
+        color: #94a3b8;
+      }
+      ul {
+        padding-left: 20px;
+        margin: 8px 0;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      strong {
+        color: #f1f5f9;
+      }
+      .callout {
+        background: #0f172a;
+        border: 1px solid #334155;
+        border-left: 4px solid #0284c7;
+        border-radius: 6px;
+        padding: 16px;
+        margin: 20px 0;
+      }
+      .callout p {
+        margin: 0;
+        color: #cbd5e1;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 13px;
+      }
+      th, td {
+        padding: 10px 12px;
+        text-align: left;
+        border: 1px solid #1e293b;
+      }
+      th {
+        background: #0f172a;
+        color: #cbd5e1;
+        font-weight: 600;
+      }
+      td {
+        color: #94a3b8;
+      }
+      footer {
+        margin-top: 48px;
+        padding-top: 24px;
+        border-top: 1px solid #1e293b;
+        font-size: 12px;
+        color: #64748b;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="badge">Compliance & Privacy</div>
+        <h1>SurveyAutoAI QA Harness Privacy Policy</h1>
+        <div class="updated">Last updated: September 2026 &middot; Version 0.1.0</div>
+      </header>
+
+      <section>
+        <div class="callout">
+          <p>
+            <strong>Core Commitment:</strong> SurveyAutoAI operates with a strict <em>zero-data-collection</em> architecture.
+            We do not operate backend tracking servers, we do not log your survey responses, and we do not sell or monetize personal data.
+            All processing is performed locally in your browser.
+          </p>
+        </div>
+
+        <h2>1. Data We Do NOT Collect</h2>
+        <p>SurveyAutoAI does not collect, transmit, or store any of the following on external developer servers:</p>
+        <ul>
+          <li><strong>No Personal Identifiable Information (PII)</strong>: Names, email addresses, phone numbers, or account details.</li>
+          <li><strong>No Survey Submissions or Answers</strong>: Answers planned and filled are strictly transient in local browser memory and your local storage.</li>
+          <li><strong>No Browsing History</strong>: The extension only inspects the active browser tab when you explicitly trigger "Scan", "Plan", or "Speedrun".</li>
+          <li><strong>No Analytics or Telemetry</strong>: No third-party tracking scripts (such as Google Analytics or Mixpanel) are bundled or executed.</li>
+        </ul>
+
+        <h2>2. Data Handled Locally in Your Browser</h2>
+        <p>The following data items are stored entirely inside your local browser profile via <code>chrome.storage</code>:</p>
+        <ul>
+          <li>
+            <strong>Google Gemini API Key</strong>: Stored locally in <code>chrome.storage.local</code>. When passphrase protection is enabled, the key is encrypted at rest using PBKDF2 (310,000 rounds) and AES-GCM 256-bit encryption. The passphrase is never stored on disk.
+          </li>
+          <li>
+            <strong>Form Ownership Attestation Records</strong>: A local registry of origins you have registered as owning or administering for testing purposes.
+          </li>
+          <li>
+            <strong>Custom Personas</strong>: Personas and test demographic profiles you create in the Persona Builder are stored locally or synced across your signed-in Chrome profile via <code>chrome.storage.sync</code>.
+          </li>
+          <li>
+            <strong>Session Run History</strong>: Transient records of question/answer pairs generated during active sessions, which you can choose to export as JSON or CSV directly to your local file system.
+          </li>
+        </ul>
+
+        <h2>3. Third-Party AI Gateway (Google Gemini API)</h2>
+        <p>
+          To generate test answers and reasoning according to your chosen persona, SurveyAutoAI communicates directly from your local browser runtime to Google Generative AI endpoints (<code>https://generativelanguage.googleapis.com/*</code>).
+        </p>
+        <ul>
+          <li>
+            Calls are authenticated exclusively with <strong>your own Google Gemini API key</strong>.
+          </li>
+          <li>
+            Only the sanitized question text, options, and previous session answers needed for anti-contradiction coherence are transmitted in the prompt payload.
+          </li>
+          <li>
+            Your interactions with the Gemini API are governed by <a href="https://ai.google.dev/terms" target="_blank" rel="noreferrer" style="color: #38bdf8;">Google's Generative AI Terms of Service</a>.
+          </li>
+        </ul>
+
+        <h2>4. Browser Permissions Justification</h2>
+        <p>In adherence to the Chrome Web Store Least Privilege Principle, SurveyAutoAI requests only the minimum necessary permissions:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Permission</th>
+              <th>Technical Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>activeTab</code></td>
+              <td>Enables the extension to inspect and interact with the survey form in the currently focused tab upon user invocation.</td>
+            </tr>
+            <tr>
+              <td><code>storage</code></td>
+              <td>Stores encrypted API keys, form attestation records, and custom personas in your local browser profile.</td>
+            </tr>
+            <tr>
+              <td><code>sidePanel</code></td>
+              <td>Provides the Chrome Side Panel user interface for controlling survey scans, inspecting answers, and monitoring runs.</td>
+            </tr>
+            <tr>
+              <td><code>scripting</code></td>
+              <td>Injects the content automation script on-demand into attested survey tabs without requiring broad <code>&lt;all_urls&gt;</code> access.</td>
+            </tr>
+            <tr>
+              <td><code>downloads</code></td>
+              <td>Allows downloading local audit receipts (JSON or CSV export) when you click "Export Run".</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>5. Ethical Use & Form Ownership Gate</h2>
+        <p>
+          SurveyAutoAI is engineered strictly as a <strong>QA testing and validation harness</strong> for survey authors, developers, and organizations who administer web forms.
+          The extension enforces a mandatory two-step ownership attestation gate before reading or filling forms, preventing unauthorized automated interaction on third-party surveys.
+        </p>
+
+        <h2>6. Contact & Support</h2>
+        <p>
+          If you have questions, feedback, or concerns regarding this privacy policy or the security design of SurveyAutoAI, please submit an issue on our project repository.
+        </p>
+      </section>
+
+      <footer>
+        &copy; 2026 SurveyAutoAI Engineering Team. Built with Manifest V3.
+      </footer>
+    </div>
+  </body>
+</html>

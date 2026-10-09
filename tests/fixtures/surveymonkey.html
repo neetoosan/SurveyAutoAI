@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SurveyMonkey - Customer Experience</title>
+  </head>
+  <body>
+    <div class="survey-page">
+      <h1 class="survey-title">Customer Experience Survey</h1>
+      <div class="progress-text">Page 1 of 3</div>
+
+      <!-- Question 1: Radio (Single Choice) -->
+      <div class="question-container" data-qnumber="1" data-question-id="q_freq">
+        <h2 class="question-title">
+          How often do you shop with us?
+          <span class="required-asterisk">*</span>
+        </h2>
+        <div class="question-subtitle">Select the most accurate frequency.</div>
+        <div class="answer-option-cell">
+          <label>
+            <input type="radio" name="q1" value="daily" />
+            <span class="radio-button-label">Daily</span>
+          </label>
+        </div>
+        <div class="answer-option-cell">
+          <label>
+            <input type="radio" name="q1" value="weekly" />
+            <span class="radio-button-label">Weekly</span>
+          </label>
+        </div>
+        <div class="answer-option-cell">
+          <label>
+            <input type="radio" name="q1" value="monthly" />
+            <span class="radio-button-label">Monthly</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 2: Checkbox (Multiple Choice) -->
+      <div class="question-container" data-qnumber="2" data-question-id="q_categories">
+        <h2 class="question-title">Which categories interest you?</h2>
+        <div class="answer-option-cell">
+          <label>
+            <input type="checkbox" name="q2" value="electronics" />
+            <span class="checkbox-label">Electronics</span>
+          </label>
+        </div>
+        <div class="answer-option-cell">
+          <label>
+            <input type="checkbox" name="q2" value="books" />
+            <span class="checkbox-label">Books</span>
+          </label>
+        </div>
+        <div class="answer-option-cell">
+          <label>
+            <input type="checkbox" name="q2" value="clothing" />
+            <span class="checkbox-label">Clothing</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Question 3: Dropdown -->
+      <div class="question-container" data-qnumber="3" data-question-id="q_country">
+        <h2 class="question-title">Country of Residence</h2>
+        <select class="select">
+          <option value="">Select country</option>
+          <option value="US">United States</option>
+          <option value="UK">United Kingdom</option>
+          <option value="CA">Canada</option>
+        </select>
+      </div>
+
+      <!-- Question 4: Matrix Table -->
+      <div class="question-container" data-qnumber="4" data-question-id="q_service_ratings">
+        <h2 class="question-title">Service Aspect Ratings</h2>
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Poor</th>
+              <th>Neutral</th>
+              <th>Good</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-label">Delivery Speed</td>
+              <td><input type="radio" name="matrix_row1" value="poor" /></td>
+              <td><input type="radio" name="matrix_row1" value="neutral" /></td>
+              <td><input type="radio" name="matrix_row1" value="good" /></td>
+            </tr>
+            <tr>
+              <td class="row-label">Customer Support</td>
+              <td><input type="radio" name="matrix_row2" value="poor" /></td>
+              <td><input type="radio" name="matrix_row2" value="neutral" /></td>
+              <td><input type="radio" name="matrix_row2" value="good" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Question 5: Open-Ended Textarea -->
+      <div class="question-container" data-qnumber="5" data-question-id="q_feedback">
+        <h2 class="question-title">Additional Comments</h2>
+        <textarea class="textarea" rows="3"></textarea>
+      </div>
+
+      <!-- Navigation -->
+      <button type="button" class="btn next-button" data-action="next">Next</button>
+      <button type="button" class="btn done-button" data-action="submit">Done</button>
+    </div>
+  </body>
+</html>

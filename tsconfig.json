@@ -1,0 +1,14 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": false,
+    "jsx": "react-jsx",
+    "types": ["chrome"]
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".wxt/**/*"],
+  "exclude": ["node_modules", ".output", "tests/e2e"]
+}

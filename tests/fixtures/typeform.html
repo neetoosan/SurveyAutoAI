@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Typeform - Product Feedback</title>
+  </head>
+  <body>
+    <div role="progressbar" aria-valuenow="50"></div>
+
+    <!-- Active Question Block -->
+    <div data-qa="block-wrapper" data-qa-blockref="block_role_1">
+      <h1 data-qa="question-title">What is your primary role? *</h1>
+      <div data-qa="question-description">Select the title that fits you best.</div>
+      <input type="hidden" required aria-required="true" />
+
+      <div class="choices">
+        <div data-qa="multiple-choice-option">
+          <span data-qa="key-sub-letter">A</span>
+          <span data-qa="choice-label">Frontend Engineer</span>
+        </div>
+        <div data-qa="multiple-choice-option">
+          <span data-qa="key-sub-letter">B</span>
+          <span data-qa="choice-label">Backend Engineer</span>
+        </div>
+        <div data-qa="multiple-choice-option">
+          <span data-qa="key-sub-letter">C</span>
+          <span data-qa="choice-label">Product Manager</span>
+        </div>
+      </div>
+
+      <button data-qa="ok-button">OK</button>
+    </div>
+
+    <!-- Secondary Inactive Block (hidden in layout) -->
+    <div data-qa="block-wrapper" data-qa-blockref="block_opinion_2" style="display: none;">
+      <h1 data-qa="question-title">How likely are you to recommend us?</h1>
+      <div data-qa="opinion-scale">
+        <button aria-label="1">1</button>
+        <button aria-label="2">2</button>
+        <button aria-label="3">3</button>
+        <button aria-label="4">4</button>
+        <button aria-label="5">5</button>
+      </div>
+    </div>
+
+    <button data-qa="submit-button">Submit</button>
+  </body>
+</html>

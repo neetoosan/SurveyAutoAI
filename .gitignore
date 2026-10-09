@@ -1,0 +1,11 @@
+node_modules/
+.output/
+.output-e2e/
+.wxt/
+dist/
+stats.html
+*.zip
+test-results/
+playwright-report/
+.env
+.env.local
